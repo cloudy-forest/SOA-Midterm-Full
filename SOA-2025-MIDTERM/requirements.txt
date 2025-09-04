@@ -1,0 +1,13 @@
+starlette
+python-jose
+fastapi
+uvicorn[standard]
+sqlalchemy
+pydantic
+alembic
+python-dotenv
+mysql-connector-python
+pydantic-settings
+python-multipart
+redis
+fastapi-mail
