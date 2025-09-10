@@ -5,15 +5,14 @@ services:
     image: mysql:8.0.28
     restart: always
     ports:
-      - 3307:3306
+      - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: student
       MYSQL_USER: mck0506
       MYSQL_PASSWORD: 123456
-      MYSQL_HOST: mysql
     volumes:
-      - C:/Docker/volume/mysql_28:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -24,12 +23,10 @@ services:
     image: phpmyadmin:latest
     restart: always
     ports:
-      - 9000:80
+      - "9000:80"
     environment:
       PMA_HOST: mysql
       MYSQL_ROOT_PASSWORD: 123456
-      MYSQL_USER: root
-      MYSQL_PASSWORD: 123456
 
   redis:
     image: redis:7
@@ -37,36 +34,38 @@ services:
     ports:
        - "6379:6379"
     volumes:
-        - C:/Docker/volume/redis_data:/data
-    command: [ "redis-server", "--appendonly", "yes" ]
+        - redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
 
   backend:
     build:
-      context: .
+      context: ./SOA-2025-MIDTERM
     ports:
       - "8000:8000"
+    volumes:
+      - ./SOA-2025-MIDTERM:/app
+    command: ["/wait-for-it.sh", "mysql:3306", "--", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     env_file:
-      - if.env
-
-  # frontend:
-  #   build:
-  #     context: ../SOA-Frontend-Midterm/Myfrontend/myapp
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - backend
-  #   environment:
-  #     VITE_API_URL: http://localhost:8000
+      - ./SOA-2025-MIDTERM/if.env
 
   frontend:
     build:
-      context: ../SOA-Frontend-Midterm/Myfrontend/myapp
+      context: ./SOA-Frontend-Midterm/Myfrontend/myapp
     ports:
       - "3000:3000"
+    volumes:
+      - ./SOA-Frontend-Midterm/Myfrontend/myapp:/app
+      - /app/node_modules
+    command: npm start
     depends_on:
       - backend
     env_file:
-      - ../SOA-Frontend-Midterm/Myfrontend/myapp/.env
+      - ./SOA-Frontend-Midterm/Myfrontend/myapp/.env
+
+volumes:
+  mysql_data:
+  redis_data:
 
