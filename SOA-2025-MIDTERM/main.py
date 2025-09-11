@@ -7,12 +7,20 @@ from api.routes_payments import router as payment_router
 from api.routes_tuitions import router as tuition_router
 # import redis
 from core.redis import redis_client
-
+from fastapi.middleware.cors import CORSMiddleware
 from core.logger import logger
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 # redis_client = redis.from_url("redis://localhost:6379", decode_responses=True)
 
