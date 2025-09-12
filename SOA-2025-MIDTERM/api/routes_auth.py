@@ -1,5 +1,3 @@
-
-
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette.status import HTTP_401_UNAUTHORIZED
@@ -9,6 +7,7 @@ from sqlalchemy.orm import Session
 from core.security import verify_token, oauth2_scheme
 import schemas.user
 from core.database import get_db
+from core.logger import logger
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -18,6 +17,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     username  = form_data.username
     password  = form_data.password
     access_token, refresh_token = user_login(db, username, password)
+    logger.info(f"User {username} logged in successfully.")
     return schemas.user.UserLoginResponse(
         access_token=access_token,
         refresh_token=refresh_token,

@@ -15,16 +15,14 @@ export default function LoginPage({ onLogin }) {
     setError("");
 
     try {
-     // const user = await loginUser(form.username, form.password);
       const tokens = await loginUser(form.username, form.password);
       localStorage.setItem("access_token", tokens.access_token);
       localStorage.setItem("refresh_token", tokens.refresh_token);
 
-      // localStorage.setItem("studentId", user.studentId);
-      // localStorage.setItem("currentUser", JSON.stringify(user));
-      onLogin(tokens); //  nếu login thành công thì gọi onLogin để App biết user đã login
+      // Chỉ cần gọi onLogin() để kích hoạt hàm handleLogin trong App.js
+      onLogin();
     } catch (err) {
-      setError(err.message); //  hiện lỗi từ userApi (VD: "Tên đăng nhập hoặc mật khẩu không chính xác.")
+      setError(err.message);
     }
   };
 

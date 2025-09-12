@@ -1,5 +1,4 @@
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { useState } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Toolbar from "@mui/material/Toolbar";
@@ -9,6 +8,8 @@ import LoginPage from "./pages/LoginPage";
 import UserPage from "./pages/UserPage";
 import PaymentPage from "./pages/PaymentPage";
 import TransHistoryPage from "./pages/TransHistoryPage";
+import { useState, useEffect } from "react";
+import { getCurrentUser } from "./api/userApi.js";
 
 // const drawerWidth = 240;
 
@@ -21,15 +22,40 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
 
-  const handleLogin = (user) => {
-    setCurrentUser(user);
-    setSidebarOpen(true); // Mở sidebar ngay sau đăng nhập
-    navigate("/user");
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        try {
+          const userData = await getCurrentUser();
+          setCurrentUser(userData);
+          setSidebarOpen(true);
+        } catch (error) {
+          console.error("Phiên đăng nhập hết hạn hoặc không hợp lệ:", error);
+          localStorage.removeItem("access_token"); // Xóa token hỏng
+        }
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+ const handleLogin = async () => {
+    try {
+      const userData = await getCurrentUser();
+
+      setCurrentUser(userData);
+      setSidebarOpen(true);
+      navigate("/user");
+    } catch (error) {
+      console.error("Không thể lấy thông tin người dùng sau khi đăng nhập:", error);
+    }
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("access_token");
     setCurrentUser(null);
-    // setSidebarOpen(false);
+    setSidebarOpen(false);
     navigate("/");
   };
 

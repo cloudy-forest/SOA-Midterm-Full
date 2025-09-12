@@ -5,8 +5,10 @@ from core.config import settings
 # DATABASE_URL = "mysql+mysqlconnector://root:123456@localhost:3307/bank"
 # DATABASE_URL = "mysql+mysqlconnector://mck0506:123456@mysql:3306/student"
 
-DATABASE_URL = "mysql+mysqlconnector://root:123456@localhost:3307/bank"
-
+DATABASE_URL = getattr(settings, "DATABASE_URL", None) or os.getenv(
+    "DATABASE_URL",
+    "mysql+mysqlconnector://mck0506:123456@mysql:3306/student",
+)
 
 engine = create_engine(DATABASE_URL)
 
